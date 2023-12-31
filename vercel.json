@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/flowplane/:asset*", "destination": "https://ryan.kilpadi.com/:asset*" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
