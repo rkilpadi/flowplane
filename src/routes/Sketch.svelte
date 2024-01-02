@@ -2,8 +2,8 @@
     import P5 from 'p5-svelte';
     import { settings, dx, dy } from '$lib/stores.js';
     import { evaluate } from 'mathjs';
-
-    $: ({ step, particleSize, trail,perturbation , perturbationCount,particleCount,speedLimit,enforceSpeedLimit} = $settings);
+stableRadius
+    $: ({ step,drawFixedPointsBool,unstableRadius, particleSize, trail,perturbation , perturbationCount,particleCount,speedLimit,enforceSpeedLimit,stableRadius,minVelocity,offScreenTolerance,respawnBorder,respawnUnstable,respawnRandom} = $settings);
   
     let particles = [];
     let fixedPoints = []; // Array to store the fixed points
@@ -34,7 +34,9 @@
 
         p5.draw = () => {
             p5.background(35, 30, 50, trail);
-            drawFixedPoints();
+            if(drawFixedPointsBool){
+                drawFixedPoints();
+            }
             drawParticles();
             let newStage = framesLeft == initialFrames;
             framesLeft--;
@@ -63,7 +65,11 @@
                     if (newStage){
                         initializeParticles();
                         p5.clear();
-                    } 
+                    }
+                    console.log(particles.length, particleCount)
+                    if (particles.length != particleCount){
+                        initializeParticles();
+                    }
                     moveParticles();
                     resetParticles();
                     break;
@@ -126,9 +132,6 @@
         }
 
         function resetParticles() {
-            const offScreenTolerance = 1; // Tolerance for going off-screen
-            const epsilon = 0.1; // Epsilon distance away from the fixed point
-            const minVelocityThreshold = 0.05; // Minimum velocity threshold
 
             for (let i = 0; i < particles.length; i++) {
                 let particle = particles[i];
@@ -138,23 +141,33 @@
                                     particle.x < xMin - offScreenTolerance ||
                                     particle.y > yMax + offScreenTolerance ||
                                     particle.y < yMin - offScreenTolerance;
-
+stableRadius
                 let tooCloseToStablePoint = fixedPoints.some(point => 
                     point.stability == stability.STABLE && 
-                    p5.dist(particle.x, particle.y, point.x, point.y) < epsilon
+                    p5.dist(particle.x, particle.y, point.x, point.y) < stableRadius
                 );
 
-                let velocityTooLow = velocity.mag() < minVelocityThreshold;
+                let velocityTooLow = velocity.mag() < minVelocity;
 
                 if (tooFarOffScreen || tooCloseToStablePoint || velocityTooLow) {
-                    let choice = p5.random() * 3;
-                    if (choice < 1) {
-                        resetParticleNearUnstablePoint(particle, epsilon);
-                    } else if (choice < 2) {
-                        resetRandomParticle(particle);
-                    } else {
-                        resetParticleOnBorder(particle);
-                    }
+                let resetFunctions = [];
+
+                // Add functions to the array based on the boolean flags
+                if (respawnBorder) {
+                    resetFunctions.push(() => resetParticleOnBorder(particle));
+                }
+                if (respawnUnstable) {
+                    resetFunctions.push(() => resetParticleNearUnstablePoint(particle, unstableRadius));
+                }
+                if (respawnRandom) {
+                    resetFunctions.push(() => resetRandomParticle(particle));
+                }
+
+                // Randomly select and call one of the functions if the array is not empty
+                if (resetFunctions.length > 0) {                
+                    let choice = Math.floor(p5.random(resetFunctions.length));
+                    resetFunctions[choice](); // Call the selected function
+                }
                 }
             }
         }
@@ -195,9 +208,7 @@
                 let noiseFactor = p5.random(0.5 * epsilon, 4 * epsilon);
                 particle.x = randomUnstablePoint.x + p5.cos(angle) * (epsilon + noiseFactor);
                 particle.y = randomUnstablePoint.y + p5.sin(angle) * (epsilon + noiseFactor);
-            } else {
-                resetParticleOnBorder(particle);
-            }
+            } 
         }
 
         function drawFixedPoints() {

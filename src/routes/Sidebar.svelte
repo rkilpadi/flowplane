@@ -104,8 +104,17 @@
         name="particleCount"
       />
     </label>
-
-    
+    <label> 
+      Off Screen Tolerance
+      <input
+        type="range"
+        min=0
+        max=5
+        step = .1
+        bind:value={$settings.offScreenTolerance}
+        name="offScreenTolerance"
+      />
+    </label>
 
     <div class="slider-container">
       <label for="speedLimitSlider">Speed Limit</label>
@@ -128,12 +137,72 @@
         bind:checked={$settings.enforceSpeedLimit}
       />
     </div>
+    <label> 
+      Stable Node Reset Radius
+      <input
+        type="range"
+        min=.01
+        max=5
+        step = .01
+        bind:value={$settings.stableRadius}
+        name="stableRadius"
+      />
+    </label>
+    <label> 
+      Minimum Velocity Reset
+      <input
+        type="range"
+        min=0.01
+        max=10
+        step=.01
+        bind:value={$settings.minVelocity}
+        name="minVelocity"
+      />
+    </label>
+    <label> 
+      Unstable Node Spawn Radius
+      <input
+        type="range"
+        min=0.01
+        max=5
+        step=.01
+        bind:value={$settings.unstableRadius}
+        name="unstableRadius"
+      />
+    </label>
+    
+    <label for="respawnBorderCheckbox">Respawn Partciles On the Border</label>
+    <input
+      type="checkbox"
+      id="respawnBorderCheckbox"
+      bind:checked={$settings.respawnBorder}
+    />
+    <label for="respawnUnstable">Respawn Partciles Near Unstable and Saddle Nodes</label>
+    <input
+      type="checkbox"
+      id="respawnUnstable"
+      bind:checked={$settings.respawnUnstable}
+    />
+    <label for="respawnRandom">Respawn Partciles Randomly</label>
+    <input
+      type="checkbox"
+      id="respawnRandom"
+      bind:checked={$settings.respawnRandom}
+    />
 
 
-
+    <label for="drawFixedPointsBool">Draw Fixed Points</label>
+    <input
+      type="checkbox"
+      id="drawFixedPointsBool"
+      bind:checked={$settings.drawFixedPointsBool}
+    />
+    
   </nav>
 {:else}
-  <button on:click={() => show = true}>☰</button>
+<button on:click={() => show = true} style="font-size: 1.75em; padding: 10px 20px;  color: rgba(255,255,255,.6); border: none; border-radius: 5px; cursor: pointer;">
+    ☰ Menu
+</button>
 {/if}
 
 <style>
