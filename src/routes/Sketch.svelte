@@ -3,11 +3,9 @@
     import { settings, dx, dy } from '$lib/stores.js';
     import { evaluate } from 'mathjs';
 
-    $: ({ step, particleSize, trail } = $settings);
+    $: ({ step, particleSize, trail,perturbation , perturbationCount,particleCount,speedLimit,enforceSpeedLimit} = $settings);
   
     let particles = [];
-    let numParticles = 1000;
-    const maxParticleSpeed = 2; // Define your maximum particle speed here
     let fixedPoints = []; // Array to store the fixed points
     let fixedPointsTotals = [];
     let stage = 0;
@@ -62,7 +60,10 @@
                     findStabilityStage(newStage);
                     break;
                 case 3:
-                    if (newStage) initializeParticles();
+                    if (newStage){
+                        initializeParticles();
+                        p5.clear();
+                    } 
                     moveParticles();
                     resetParticles();
                     break;
@@ -75,13 +76,21 @@
         }
 
         function findStabilityStage() {
-            let epsilon = 0.1;
-            if (particles.length < 200) {
+            if (particles.length < perturbationCount) {
                 let fixedPoint = fixedPoints[numFixedPoints-1]
-                let offset = p5.TAU * (particles.length / 200);
-                particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*epsilon, fixedPoint.y + p5.sin(offset)*epsilon));
-                offset = p5.TAU * (particles.length / 200);
-                particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*epsilon, fixedPoint.y + p5.sin(offset)*epsilon));
+
+
+                let offset = p5.TAU * (particles.length / perturbationCount);
+
+             //   particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*perturbation, fixedPoint.y + p5.sin(offset)*perturbation));
+                for (let i = 0; i < perturbationCount-1;i++){
+                    particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*perturbation, fixedPoint.y + p5.sin(offset)*perturbation));
+                    offset = p5.TAU * (particles.length / perturbationCount);
+                }
+             //   offset = p5.TAU * (particles.length / perturbationCount);
+             //   particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*perturbation, fixedPoint.y + p5.sin(offset)*perturbation));
+
+
             } else {
                 moveParticles();
             }
@@ -91,7 +100,7 @@
                 let close = 0;
                 let far = 0;
                 for (let i = 0; i < particles.length; i++) {
-                    p5.dist(particles[i].x, particles[i].y, point.x, point.y) < epsilon ? close++ : far++;
+                    p5.dist(particles[i].x, particles[i].y, point.x, point.y) < perturbation ? close++ : far++;
                 }
                 if (far == 0) {
                     point.stability = stability.STABLE;
@@ -202,7 +211,7 @@
 
         function initializeParticles() {
             particles = [];
-            for (let i = 0; i < numParticles; i++) {
+            for (let i = 0; i < particleCount; i++) {
                 particles.push(p5.createVector(p5.random(xMin, xMax), p5.random(yMin, yMax)));
             }
         }
@@ -229,8 +238,8 @@
 
                 let particleSpeed = p5.sqrt(xDelta * xDelta + yDelta * yDelta);
 
-                if (particleSpeed > maxParticleSpeed) {
-                    let scaleFactor = maxParticleSpeed / particleSpeed;
+                if (particleSpeed > speedLimit && enforceSpeedLimit) {
+                    let scaleFactor = speedLimit / particleSpeed;
                     xDelta *= scaleFactor;
                     yDelta *= scaleFactor;
                 }
