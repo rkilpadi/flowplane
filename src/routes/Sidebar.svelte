@@ -28,17 +28,20 @@
     <button on:click={() => show = false}>Close</button>
     <button>Fast Forward</button>
     <button on:click={updateEquations}>Play</button>
-
-    <input
-      type='text'
-      bind:value={tempDx}  
-    />
-
-    <input
-      type='text'
-      bind:value={tempDy}  
-    />
-
+    <label class="input-container1">ẋ
+      <input
+        type='text'
+        bind:value={tempDx}  
+      />
+    </label>
+    
+    <label class="input-container1">ẏ 
+      <input
+        type='text'
+        bind:value={tempDy}  
+      />
+    </label>
+    
 
     <label> 
       Step Size
@@ -206,6 +209,15 @@
 {/if}
 
 <style>
+.input-container1 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.input-container1 input {
+    margin-left: 5px;
+}
   .menu{
     font-size: 1.75em; 
     padding: 5px 10px;  
@@ -240,7 +252,7 @@
   }
   nav {
     background-color: rgba(3, 3, 3, 0.5);
-    color: white;
+    color: rgba(231, 231, 231, 0.932);
     padding: 10px;
     padding-bottom: 30px; /* Extra bottom padding */
     width: 200px;
@@ -278,5 +290,14 @@
   label {
     display: block;
     margin-bottom: 20px;
+  }
+  input[type=text] {
+    border: 2px solid #9e9e9e;
+    border-radius: 7px;
+    font-size: 1em;
+    padding:4px;
+    width: 80%;
+    background-color:  rgba(3, 3, 3, 0.7);
+    color: #dfdfdf;
   }
 </style>
