@@ -190,14 +190,14 @@
       bind:checked={$settings.respawnRandom}
     />
 
-
+<div style="padding-bottom: 15px;">
     <label for="drawFixedPointsBool">Draw Fixed Points</label>
     <input
       type="checkbox"
       id="drawFixedPointsBool"
       bind:checked={$settings.drawFixedPointsBool}
     />
-    
+  </div>
   </nav>
 {:else}
 <button on:click={() => show = true} style="font-size: 1.75em; padding: 10px 20px;  color: rgba(255,255,255,.6); border: none; border-radius: 5px; cursor: pointer;">
@@ -229,13 +229,18 @@
     background-color: rgba(3, 3, 3, 0.5);
     color: white;
     padding: 10px;
+    padding-bottom: 30px; /* Extra bottom padding */
     width: 200px;
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
+    max-height: 100vh;
+    overflow-y: auto;
     z-index: 1;
-  }
+}
+
+
 
   button {
     border: none;
