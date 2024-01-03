@@ -200,12 +200,25 @@
   </div>
   </nav>
 {:else}
-<button on:click={() => show = true} style="font-size: 1.75em; padding: 10px 20px;  color: rgba(255,255,255,.6); border: none; border-radius: 5px; cursor: pointer;">
-    ☰ Menu
+<button on:click={() => show = true} class="menu">
+    ☰
 </button>
 {/if}
 
 <style>
+  .menu{
+    font-size: 1.75em; 
+    padding: 5px 10px;  
+    background-color: rgba(12, 12, 12, 0); 
+    border: none; 
+    border-radius: 40px; 
+    cursor: pointer;
+    transition: 1s;
+  }
+  .menu:hover{
+    background-color: rgba(12,12,12,1); 
+    color:white;
+  }
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
     .slider-checkbox {
     display: flex;
