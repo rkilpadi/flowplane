@@ -1,12 +1,13 @@
 <script>
     import P5 from 'p5-svelte';
+    import { onDestroy } from 'svelte';
     import { settings, dx, dy } from '$lib/stores.js';
     import { evaluate } from 'mathjs';
-stableRadius
-    $: ({ step,drawFixedPointsBool,unstableRadius, particleSize, trail,perturbation , perturbationCount,particleCount,speedLimit,enforceSpeedLimit,stableRadius,minVelocity,offScreenTolerance,respawnBorder,respawnUnstable,respawnRandom} = $settings);
+    $: ({ step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
   
+    let p5Instance;
     let particles = [];
-    let fixedPoints = []; // Array to store the fixed points
+    let fixedPoints = [];
     let fixedPointsTotals = [];
     let stage = 0;
     const initialFrames = 300;
@@ -23,6 +24,7 @@ stableRadius
 
     const sketch = (p5) => {
 
+        p5Instance = p5;
         let xMin = -10;
         let xMax = 10;
         let yMin = -10*p5.windowHeight/p5.windowWidth;
@@ -84,19 +86,11 @@ stableRadius
         function findStabilityStage() {
             if (particles.length < perturbationCount) {
                 let fixedPoint = fixedPoints[numFixedPoints-1]
-
-
                 let offset = p5.TAU * (particles.length / perturbationCount);
-
-             //   particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*perturbation, fixedPoint.y + p5.sin(offset)*perturbation));
                 for (let i = 0; i < perturbationCount-1;i++){
                     particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*perturbation, fixedPoint.y + p5.sin(offset)*perturbation));
                     offset = p5.TAU * (particles.length / perturbationCount);
                 }
-             //   offset = p5.TAU * (particles.length / perturbationCount);
-             //   particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*perturbation, fixedPoint.y + p5.sin(offset)*perturbation));
-
-
             } else {
                 moveParticles();
             }
@@ -141,7 +135,6 @@ stableRadius
                                     particle.x < xMin - offScreenTolerance ||
                                     particle.y > yMax + offScreenTolerance ||
                                     particle.y < yMin - offScreenTolerance;
-stableRadius
                 let tooCloseToStablePoint = fixedPoints.some(point => 
                     point.stability == stability.STABLE && 
                     p5.dist(particle.x, particle.y, point.x, point.y) < stableRadius
@@ -163,10 +156,9 @@ stableRadius
                     resetFunctions.push(() => resetRandomParticle(particle));
                 }
 
-                // Randomly select and call one of the functions if the array is not empty
                 if (resetFunctions.length > 0) {                
                     let choice = Math.floor(p5.random(resetFunctions.length));
-                    resetFunctions[choice](); // Call the selected function
+                    resetFunctions[choice](); 
                 }
                 }
             }
@@ -309,6 +301,10 @@ stableRadius
             p5.setup();
         }
     }
+
+    onDestroy(() => {
+        p5Instance?.remove();
+    });
 </script>
 
 <P5 {sketch} />
