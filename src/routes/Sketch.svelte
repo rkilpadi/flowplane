@@ -3,6 +3,7 @@
     import { onDestroy } from 'svelte';
     import { settings, dx, dy } from '$lib/stores.js';
     import { evaluate } from 'mathjs';
+
     $: ({ step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
   
     let p5Instance;
@@ -68,7 +69,6 @@
                         initializeParticles();
                         p5.clear();
                     }
-                    console.log(particles.length, particleCount)
                     if (particles.length != particleCount){
                         initializeParticles();
                     }

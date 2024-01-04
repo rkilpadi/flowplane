@@ -1,5 +1,6 @@
 <script>
   import { fly } from 'svelte/transition';
+  import { page } from '$app/stores';
   import { settings, dx, dy, unique} from '$lib/stores.js';
   import { evaluate } from 'mathjs';
 
@@ -18,8 +19,24 @@
     dx.set(tempDx);
     dy.set(tempDy);
     unique.set({ timestamp: Date.now() });
-    unique.subscribe(value => console.log("Unique updated:", value)); // For debugging
+    unique.subscribe(value => console.log("Unique updated:", value));
+  }
 
+  async function copyUrl() {
+    let urlParams = [];
+    Object.keys($settings).forEach(setting => {
+      urlParams.push(`${setting}=${$settings[setting]}`);
+    });
+    urlParams.push(`dx=${encodeURIComponent($dx)}`);
+    urlParams.push(`dy=${encodeURIComponent($dy)}`);
+    let url = `${window.location.origin}/?${urlParams.join('&')}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      console.log(`Copied ${url} to clipboard`);
+    } catch (error) {
+      alert(`${url}\nFailed to copy to clipboard, please copy manually\n${error}`);
+      console.log(url);
+    }
   }
 </script>
 
@@ -28,6 +45,7 @@
     <button on:click={() => show = false}>Close</button>
     <button>Fast Forward</button>
     <button on:click={updateEquations}>Play</button>
+
     <label class="input-container1">ẋ
       <input
         type='text'
@@ -41,7 +59,6 @@
         bind:value={tempDy}  
       />
     </label>
-    
 
     <label> 
       Step Size
@@ -59,7 +76,7 @@
       Particle Size
       <input
         type="range"
-        min=0
+        min=1
         max=10
         bind:value={$settings.particleSize}
         name="particleSize"
@@ -76,6 +93,7 @@
         name="trail"
       />
     </label>
+
     <label> 
       Perturbation
       <input
@@ -87,6 +105,7 @@
         name="perturbation"
       />
     </label>
+
     <label> 
       Perturbation Particles
       <input
@@ -97,6 +116,7 @@
         name="perturbationCount"
       />
     </label>
+
     <label> 
       Particles
       <input
@@ -107,6 +127,7 @@
         name="particleCount"
       />
     </label>
+
     <label> 
       Off Screen Tolerance
       <input
@@ -132,6 +153,7 @@
         disabled={!$settings.enforceSpeedLimit}
       />
     </div>
+
     <div class="slider-container">
       <label for="speedLimitCheckbox">Enforce Speed Limit</label>
       <input
@@ -140,6 +162,7 @@
         bind:checked={$settings.enforceSpeedLimit}
       />
     </div>
+
     <label> 
       Stable Node Reset Radius
       <input
@@ -151,6 +174,7 @@
         name="stableRadius"
       />
     </label>
+
     <label> 
       Minimum Velocity Reset
       <input
@@ -162,6 +186,7 @@
         name="minVelocity"
       />
     </label>
+
     <label> 
       Unstable Node Spawn Radius
       <input
@@ -180,12 +205,14 @@
       id="respawnBorderCheckbox"
       bind:checked={$settings.respawnBorder}
     />
+
     <label for="respawnUnstable">Respawn Partciles Near Unstable and Saddle Nodes</label>
     <input
       type="checkbox"
       id="respawnUnstable"
       bind:checked={$settings.respawnUnstable}
     />
+
     <label for="respawnRandom">Respawn Partciles Randomly</label>
     <input
       type="checkbox"
@@ -193,14 +220,16 @@
       bind:checked={$settings.respawnRandom}
     />
 
-<div style="padding-bottom: 15px;">
-    <label for="drawFixedPointsBool">Draw Fixed Points</label>
-    <input
-      type="checkbox"
-      id="drawFixedPointsBool"
-      bind:checked={$settings.drawFixedPointsBool}
-    />
-  </div>
+    <div style="padding-bottom: 15px;">
+        <label for="drawFixedPointsBool">Draw Fixed Points</label>
+        <input
+          type="checkbox"
+          id="drawFixedPointsBool"
+          bind:checked={$settings.drawFixedPointsBool}
+        />
+    </div>
+
+    <button on:click={copyUrl}>Copy URL</button>
   </nav>
 {:else}
 <button on:click={() => show = true} class="menu">
@@ -209,63 +238,68 @@
 {/if}
 
 <style>
-.input-container1 {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
+    .input-container1 {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
 
-.input-container1 input {
-    margin-left: 5px;
-}
-  .menu{
-    font-size: 1.75em; 
-    padding: 5px 10px;  
-    background-color: rgba(12, 12, 12, 0); 
-    border: none; 
-    border-radius: 40px; 
-    cursor: pointer;
-    transition: 1s;
-  }
-  .menu:hover{
-    background-color: rgba(12,12,12,1); 
-    color:white;
-  }
+    .input-container1 input {
+        margin-left: 5px;
+    }
+
+    .menu {
+        font-size: 1.75em; 
+        padding: 5px 10px;  
+        background-color: rgba(12, 12, 12, 0); 
+        border: none; 
+        border-radius: 40px; 
+        cursor: pointer;
+        transition: 1s;
+    }
+
+    .menu:hover{
+        background-color: rgba(12,12,12,1); 
+        color:white;
+    }
+
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-    .slider-checkbox {
-    display: flex;
-    align-items: center;
-  }
-  .slider-container {
-    display: block; /* or use 'flex' with 'flex-direction: column;' for more control */
-    margin-bottom: 10px;
-  }
-  #speedLimitCheckbox {
-    margin-right: 10px;
-  }
+        .slider-checkbox {
+        display: flex;
+        align-items: center;
+    }
 
-  #speedLimitSlider {
-    flex-grow: 1;
-  }
-  button, input, label {
-    font-family: 'Roboto', sans-serif;
-  }
-  nav {
-    background-color: rgba(3, 3, 3, 0.5);
-    color: rgba(231, 231, 231, 0.932);
-    padding: 10px;
-    padding-bottom: 30px; /* Extra bottom padding */
-    width: 200px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    max-height: 100vh;
-    overflow-y: auto;
-    z-index: 1;
-}
+     .slider-container {
+        display: block; /* or use 'flex' with 'flex-direction: column;' for more control */
+        margin-bottom: 10px;
+     }
 
+     #speedLimitCheckbox {
+        margin-right: 10px;
+     }
 
+     #speedLimitSlider {
+        flex-grow: 1;
+     }
+
+    button, input, label {
+        font-family: 'Roboto', sans-serif;
+    }
+
+     nav {
+        background-color: rgba(3, 3, 3, 0.5);
+        color: rgba(231, 231, 231, 0.932);
+        padding: 10px;
+        padding-bottom: 30px; /* Extra bottom padding */
+        width: 200px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        max-height: 100vh;
+        overflow-y: auto;
+        z-index: 1;
+    }
 
   button {
     border: none;
@@ -291,6 +325,7 @@
     display: block;
     margin-bottom: 20px;
   }
+
   input[type=text] {
     border: 2px solid #9e9e9e;
     border-radius: 7px;

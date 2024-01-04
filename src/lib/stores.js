@@ -20,6 +20,6 @@ export const settings = writable({
 });
 
 export const dx = writable('-y');
-export const dy = writable('-(-y-x)');
-// used to reset Sketch. {} === {} is false
+export const dy = writable('y+x');
 export const unique = writable({ timestamp: Date.now() });
+
