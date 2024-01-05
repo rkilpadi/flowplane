@@ -61,6 +61,17 @@
     </label>
 
     <label> 
+      Zoom
+      <input
+        type="range"
+        min=1
+        max=100
+        bind:value={$settings.Zoom}
+        name="Zoom"
+      />
+    </label>
+
+    <label> 
       Step Size
       <input
         type="range"
@@ -125,6 +136,28 @@
         max=3000
         bind:value={$settings.particleCount}
         name="particleCount"
+      />
+    </label>
+
+    <label> 
+      Test Particles
+      <input
+        type="range"
+        min=1
+        max=55
+        bind:value={$settings.testParticleCount}
+        name="testParticleCount"
+      />
+    </label>
+
+    <label> 
+      Fixed Points Merge Distance
+      <input
+        type="range"
+        min=1
+        max=5
+        bind:value={$settings.mergeDist}
+        name="mergeDist"
       />
     </label>
 
