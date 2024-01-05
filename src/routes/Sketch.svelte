@@ -4,7 +4,7 @@
     import { settings, dx, dy } from '$lib/stores.js';
     import { evaluate } from 'mathjs';
 
-    $: ({ step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
+    $: ({Zoom,mergeDist,testParticleCount,step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
   
     let p5Instance;
     let particles = [];
@@ -25,10 +25,10 @@
     const sketch = (p5) => {
 
         p5Instance = p5;
-        let xMin = -10;
-        let xMax = 10;
-        let yMin = -10*p5.windowHeight/p5.windowWidth;
-        let yMax = 10*p5.windowHeight/p5.windowWidth;
+        let xMin = -Zoom;
+        let xMax = Zoom;
+        let yMin = -Zoom*p5.windowHeight/p5.windowWidth;
+        let yMax = Zoom*p5.windowHeight/p5.windowWidth;
 
         p5.setup = () => {
             p5.createCanvas(p5.windowWidth, p5.windowHeight);
@@ -114,7 +114,7 @@
             }
         }
 
-        function initializeTestParticles(particleTestCount = 30) {
+        function initializeTestParticles(particleTestCount = testParticleCount) {
             particles = [];
             for (let i = xMin; i < xMax; i += Math.abs(xMin - xMax)/particleTestCount) {
                 for (let j = yMin; j < yMax; j += Math.abs(yMin - yMax)/particleTestCount) {
@@ -253,12 +253,11 @@
                 y += yDelta * step;
 
                 let tolerance = 0.2;
-                let epsilon = 1;
                 if (stage < 2 && particleSpeed < tolerance) {
                     let point = { x: particles[i].x, y: particles[i].y, stability: stability.UNKNOWN };
                     let foundPoint = false
                     for (let i = 0; i < fixedPoints.length; i++) {
-                        if (p5.dist(fixedPoints[i].x, fixedPoints[i].y, point.x, point.y) < epsilon) {
+                        if (p5.dist(fixedPoints[i].x, fixedPoints[i].y, point.x, point.y) < mergeDist) {
                             fixedPoints[i].x = (fixedPoints[i].x * fixedPointsTotals[i] + point.x) / (fixedPointsTotals[i]+1);
                             fixedPoints[i].y = (fixedPoints[i].y * fixedPointsTotals[i] + point.y) / (fixedPointsTotals[i]+1);
                             fixedPointsTotals[i]++;

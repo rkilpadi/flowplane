@@ -17,6 +17,9 @@ export const settings = writable({
     offScreenTolerance: 1,
     unstableRadius:0.1,
     drawFixedPointsBool: true,
+    testParticleCount: 30,
+    mergeDist: 1,
+    Zoom:10,
 });
 
 export const dx = writable('-y');
