@@ -9,7 +9,6 @@
     });
     dx.set(decodeURI($page.url.searchParams.get('dx') ?? $dx));
     dy.set(decodeURI($page.url.searchParams.get('dy') ?? $dy));
-
 </script>
 
 <div class="app">
@@ -21,7 +20,7 @@
 
 	<main>
 		<Sidebar />
-        <div class="signature"> Drew & Ryan </div>
+        <div class="signature"> Ryan & Drew </div>
 	</main>
 </div>
 
