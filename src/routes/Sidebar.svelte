@@ -300,13 +300,9 @@
         border: none; 
         border-radius: 40px; 
         cursor: pointer;
-        transition: 1s;
     }
 
-    .menu:hover{
-        background-color: rgba(12,12,12,1); 
-        color:white;
-    }
+
 
     .slider-checkbox {
         display: flex;
