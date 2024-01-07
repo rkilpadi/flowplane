@@ -56,6 +56,7 @@
         cursor: pointer; /* Change cursor to indicate clickable */
         width:6vw;
         background: none;
+        display:none;
         border:none;
     }
 	#sketch {
