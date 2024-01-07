@@ -36,9 +36,13 @@
         yMin = -Zoom*p5.windowHeight/p5.windowWidth;
         yMax = Zoom*p5.windowHeight/p5.windowWidth;
         }
+        let yMin = -Zoom*window.innerHeight/window.innerWidth;
+        let yMax = Zoom*window.innerHeight/window.innerWidth;
+
         p5.setup = () => {
             p5.createCanvas(p5.windowWidth, p5.windowHeight);
 
+            p5.createCanvas(window.innerWidth, window.innerHeight);
         }
 
         p5.draw = () => {
@@ -320,7 +324,7 @@
         }
 
         p5.windowResized = () => {
-            p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
+            p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
             xMin = -Zoom;
             xMax = Zoom;
             yMin = -Zoom * p5.windowHeight / p5.windowWidth;
