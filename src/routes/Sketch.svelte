@@ -4,8 +4,8 @@
     import { settings, dx, dy } from '$lib/stores.js';
     import { evaluate, random } from 'mathjs';
 
-    $: ({Zoom,mergeDist,testParticleCount,step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
-  
+    $: ({ Zoom, mergeDist, testParticleCount, step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
+
     let p5Instance;
     const initialFrames = 300;
     const stability = Object.freeze({
@@ -21,28 +21,19 @@
         
         let xMin = -Zoom;
         let xMax = Zoom;
-        let yMin = -Zoom;
-        let yMax = Zoom;
-        let colorArray = [p5.color(50, 200, 255), p5.color(121, 209, 204)]; // Now using p5's color function
-
-        if (p5.windowHeight > p5.windowWidth) {
-        xMin = -Zoom*p5.windowWidth/p5.windowHeight;
-        xMax = Zoom*p5.windowWidth/p5.windowHeight;
-        yMin = -Zoom;
-        yMax = Zoom;
-        } else {
-        xMin = -Zoom;
-        xMax = Zoom;
-        yMin = -Zoom*p5.windowHeight/p5.windowWidth;
-        yMax = Zoom*p5.windowHeight/p5.windowWidth;
-        }
-        let yMin = -Zoom*window.innerHeight/window.innerWidth;
-        let yMax = Zoom*window.innerHeight/window.innerWidth;
+        let colorArray = [p5.color('lightseagreen'), p5.color(0, 255, 255)]; // Now using p5's color function
+        let particles = [];
+        let fixedPoints = [];
+        let fixedPointsTotals = [];
+        let stage = 0;
+        let framesLeft = initialFrames;
+        let negateVelocity = false;
+        let yMin = -Zoom*p5.windowHeight/p5.windowWidth;
+        let yMax = Zoom*p5.windowHeight/p5.windowWidth;
 
         p5.setup = () => {
             p5.createCanvas(p5.windowWidth, p5.windowHeight);
 
-            p5.createCanvas(window.innerWidth, window.innerHeight);
         }
 
         p5.draw = () => {
@@ -62,14 +53,14 @@
 
             switch (stage) {
                 case 0:
-                    p5.stroke('red');
+                    p5.stroke('lightseagreen');
                     if (newStage) initializeTestParticles();
                     findFixedPointsStage();
                     break;
                 case 1:
                     if (newStage) initializeTestParticles();
-                    negateVelocity = false;
-                    p5.stroke('lightseagreen');
+                    negateVelocity = true;
+                    p5.stroke('red');
                     findFixedPointsStage(newStage);
                     break;
                 case 2:
@@ -253,7 +244,7 @@
 
 
         function moveParticles() {
-            let colorChangeSpeed = 0.1; // Adjust this value to change the speed of color change
+            let colorChangeSpeed = 0.01; // Adjust this value to change the speed of color change
 
             for (let i = 0; i < particles.length; i++) {
                 let prevX = p5.map(particles[i].x, xMin, xMax, 0, p5.width);
@@ -324,7 +315,7 @@
         }
 
         p5.windowResized = () => {
-            p5.resizeCanvas(p5.windowWidth, p5.windowHeight)
+            p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
             xMin = -Zoom;
             xMax = Zoom;
             yMin = -Zoom * p5.windowHeight / p5.windowWidth;

@@ -9,6 +9,13 @@
     });
     dx.set(decodeURI($page.url.searchParams.get('dx') ?? $dx));
     dy.set(decodeURI($page.url.searchParams.get('dy') ?? $dy));
+    let showSignature = true;
+  let signatureText = 'Drew & Ryan'; // New variable for dynamic text
+
+  function toggleSignature() {
+    showSignature = !showSignature;
+    signatureText = showSignature ? 'Drew & Ryan' : 'Hide'; // Change text based on state
+  }
 </script>
 
 <div class="app">
@@ -20,11 +27,37 @@
 
 	<main>
 		<Sidebar />
-        <div class="signature"> Ryan & Drew </div>
+                {#if showSignature}
+        <button class="signature" 
+                on:click={toggleSignature} 
+                on:mouseover={() => signatureText = 'Hide'} 
+                on:mouseout={() => signatureText = 'Drew & Ryan'}
+                on:focus={() => signatureText = 'Hide'} 
+                on:blur={() => signatureText = 'Drew & Ryan'}>
+        <span class="signature-text">{signatureText}</span>
+        </button>
+{/if}
+
 	</main>
 </div>
 
 <style>
+      @import url('https://fonts.googleapis.com/css?family=Great+Vibes');
+      .signature {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        color: rgba(192, 192, 192, 0.61); /* Translucent gray */
+        font-family: 'Great Vibes', cursive; /* Specify the imported cursive font */
+        padding: 1px;
+        margin:10px;
+        font-size: 1vw;
+        user-select: none;
+        cursor: pointer; /* Change cursor to indicate clickable */
+        width:6vw;
+        background: none;
+        border:none;
+    }
 	#sketch {
 		position: fixed !important;
 		top: 0;
@@ -33,14 +66,4 @@
 		animation: fadein 2s;
 	}  
 
-    .signature {
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        color: rgba(192, 192, 192, 0.61);
-        font-family: 'Great Vibes', cursive;
-        padding: 10px;
-        font-size: 1.5em;
-        user-select: none;
-    }
 </style>
