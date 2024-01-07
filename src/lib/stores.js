@@ -24,5 +24,5 @@ export const settings = writable({
 
 export const dx = writable('-y');
 export const dy = writable('y+x');
-export const unique = writable({ timestamp: Date.now() });
+export const unique = writable(Date.now());
 

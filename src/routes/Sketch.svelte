@@ -4,17 +4,10 @@
     import { settings, dx, dy } from '$lib/stores.js';
     import { evaluate } from 'mathjs';
 
-    $: ({Zoom,mergeDist,testParticleCount,step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
-  
-    let p5Instance;
-    let particles = [];
-    let fixedPoints = [];
-    let fixedPointsTotals = [];
-    let stage = 0;
-    const initialFrames = 300;
-    let framesLeft = initialFrames;
-    let negateVelocity = true;
+    $: ({ Zoom, mergeDist, testParticleCount, step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
 
+    let p5Instance;
+    const initialFrames = 300;
     const stability = Object.freeze({
         STABLE: Symbol("stable"),
         UNSTABLE: Symbol("unstable"),
@@ -25,6 +18,12 @@
     const sketch = (p5) => {
 
         p5Instance = p5;
+        let particles = [];
+        let fixedPoints = [];
+        let fixedPointsTotals = [];
+        let stage = 0;
+        let framesLeft = initialFrames;
+        let negateVelocity = false;
         let xMin = -Zoom;
         let xMax = Zoom;
         let yMin = -Zoom*p5.windowHeight/p5.windowWidth;
@@ -55,12 +54,13 @@
                     break;
                 case 1:
                     if (newStage) initializeTestParticles();
-                    negateVelocity = false;
+                    negateVelocity = true;
                     p5.stroke('red');
                     findFixedPointsStage(newStage);
                     break;
                 case 2:
                     if (newStage) particles = [];
+                    negateVelocity = false;
                     findStabilityStage(newStage);
                     break;
                 case 3:
@@ -278,7 +278,6 @@
                 p5.line(prevX, prevY, newX, newY);
                 particles[i].x = x;
                 particles[i].y = y;
-
             }
         }
 
@@ -291,9 +290,11 @@
         }
 
         p5.windowResized = () => {
-            particles = [];
-            p5.canvas.remove();
-            p5.setup();
+            p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
+            xMin = -Zoom;
+            xMax = Zoom;
+            yMin = -Zoom * p5.windowHeight / p5.windowWidth;
+            yMax = Zoom * p5.windowHeight / p5.windowWidth;
         }
     }
 

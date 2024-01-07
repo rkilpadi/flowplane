@@ -1,6 +1,6 @@
 <script>
   import { fly } from 'svelte/transition';
-  import { settings, dx, dy, unique} from '$lib/stores.js';
+  import { settings, dx, dy, unique } from '$lib/stores.js';
   import { evaluate } from 'mathjs';
 
   export let show = false;
@@ -17,8 +17,7 @@
     }
     dx.set(tempDx);
     dy.set(tempDy);
-    unique.set({ timestamp: Date.now() });
-    unique.subscribe(value => console.log("Unique updated:", value));
+    unique.set(Date.now());
   }
 
   async function copyUrl() {
@@ -42,13 +41,14 @@
 {#if show}
   <nav transition:fly={{x: -250, opacity: 1}}>
     <button on:click={() => show = false}>Close</button>
-    <button>Fast Forward</button>
+    <button on:click={copyUrl}>Copy URL</button>
     <button on:click={updateEquations}>Play</button>
 
     <label class="input-container1">ẋ
       <input
         type='text'
         bind:value={tempDx}  
+        name='xdot'
       />
     </label>
     
@@ -56,17 +56,7 @@
       <input
         type='text'
         bind:value={tempDy}  
-      />
-    </label>
-
-    <label> 
-      Zoom
-      <input
-        type="range"
-        min=1
-        max=100
-        bind:value={$settings.Zoom}
-        name="Zoom"
+        name='ydot'
       />
     </label>
 
@@ -230,6 +220,17 @@
       />
     </label>
     
+    <label> 
+      Zoom
+      <input
+        type="range"
+        min=1
+        max=100
+        bind:value={$settings.Zoom}
+        name="Zoom"
+      />
+    </label>
+
     <label for="respawnBorderCheckbox">
       Respawn Partciles On the Border
       <input
@@ -265,27 +266,12 @@
         bind:checked={$settings.drawFixedPointsBool}
       />
     </label>
-
-    <button on:click={copyUrl}>Copy URL</button>
   </nav>
 {:else}
   <button on:click={() => show = true} class="menu">☰</button>
 {/if}
-<div class="signature">
-  Drew & Ryan
-</div>
+
 <style>
-  @import url('https://fonts.googleapis.com/css?family=Great+Vibes');
-      .signature {
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        color: rgba(192, 192, 192, 0.61); /* Translucent gray */
-        font-family: 'Great Vibes', cursive; /* Specify the imported cursive font */
-        padding: 10px;
-        font-size: 1.5em;
-        user-select: none;
-    }
     .input-container1 {
         display: flex;
         align-items: center;
@@ -311,7 +297,6 @@
         color:white;
     }
 
-    /* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'); */
     .slider-checkbox {
         display: flex;
         align-items: center;

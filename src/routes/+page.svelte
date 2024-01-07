@@ -21,6 +21,7 @@
 
 	<main>
 		<Sidebar />
+        <div class="signature"> Drew & Ryan </div>
 	</main>
 </div>
 
@@ -31,5 +32,16 @@
 		left: 0;
 		z-index: -1;
 		animation: fadein 2s;
-	}
+	}  
+
+    .signature {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        color: rgba(192, 192, 192, 0.61);
+        font-family: 'Great Vibes', cursive;
+        padding: 10px;
+        font-size: 1.5em;
+        user-select: none;
+    }
 </style>
