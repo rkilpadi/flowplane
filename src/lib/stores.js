@@ -5,7 +5,7 @@ export const settings = writable({
     step: 0.02,
     trail: 10,
     perturbation: 0.5,
-    perturbationCount:200,
+    perturbationCount: 100,
     speedLimit: 2,
     enforceSpeedLimit: true,
     particleCount: 1000,
@@ -24,5 +24,5 @@ export const settings = writable({
 
 export const dx = writable('-y');
 export const dy = writable('y+x');
-export const unique = writable({ timestamp: Date.now() });
+export const unique = writable(Date.now());
 

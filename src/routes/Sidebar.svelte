@@ -1,7 +1,6 @@
 <script>
   import { fly } from 'svelte/transition';
-  import { page } from '$app/stores';
-  import { settings, dx, dy, unique} from '$lib/stores.js';
+  import { settings, dx, dy, unique } from '$lib/stores.js';
   import { evaluate } from 'mathjs';
 
   export let show = false;
@@ -18,8 +17,7 @@
     }
     dx.set(tempDx);
     dy.set(tempDy);
-    unique.set({ timestamp: Date.now() });
-    unique.subscribe(value => console.log("Unique updated:", value));
+    unique.set(Date.now());
   }
 
   async function copyUrl() {
@@ -56,6 +54,7 @@
       <input
         type='text'
         bind:value={tempDx}  
+        name='xdot'
       />
     </label>
     
@@ -63,6 +62,7 @@
       <input
         type='text'
         bind:value={tempDy}  
+        name='ydot'
       />
     </label>
 
@@ -127,8 +127,8 @@
       Perturbation Particles
       <input
         type="range"
-        min=0
-        max=500
+        min=10
+        max=250
         bind:value={$settings.perturbationCount}
         name="perturbationCount"
       />
@@ -179,8 +179,8 @@
       />
     </label>
 
-    <div class="slider-container">
-      <label for="speedLimitSlider">Speed Limit</label>
+    <label for="speedLimitSlider">
+      Speed Limit
       <input
         type="range"
         id="speedLimitSlider"
@@ -191,16 +191,15 @@
         name="speedLimit"
         disabled={!$settings.enforceSpeedLimit}
       />
-    </div>
+    </label>
 
-    <div class="slider-container">
-      <label for="speedLimitCheckbox">Enforce Speed Limit</label>
+    <label for="speedLimitCheckbox">Enforce Speed Limit
       <input
         type="checkbox"
         id="speedLimitCheckbox"
         bind:checked={$settings.enforceSpeedLimit}
       />
-    </div>
+    </label>
 
     <label> 
       Stable Node Reset Radius
@@ -231,49 +230,62 @@
       <input
         type="range"
         min=0.01
-        max=5
+        max=1
         step=.01
         bind:value={$settings.unstableRadius}
         name="unstableRadius"
       />
     </label>
     
-    <label for="respawnBorderCheckbox">Respawn Partciles On the Border</label>
-    <input
-      type="checkbox"
-      id="respawnBorderCheckbox"
-      bind:checked={$settings.respawnBorder}
-    />
+    <label> 
+      Zoom
+      <input
+        type="range"
+        min=1
+        max=100
+        bind:value={$settings.Zoom}
+        name="Zoom"
+      />
+    </label>
 
-    <label for="respawnUnstable">Respawn Partciles Near Unstable and Saddle Nodes</label>
-    <input
-      type="checkbox"
-      id="respawnUnstable"
-      bind:checked={$settings.respawnUnstable}
-    />
+    <label for="respawnBorderCheckbox">
+      Respawn Partciles On the Border
+      <input
+        type="checkbox"
+        id="respawnBorderCheckbox"
+        bind:checked={$settings.respawnBorder}
+      />
+    </label>
 
-    <label for="respawnRandom">Respawn Partciles Randomly</label>
-    <input
-      type="checkbox"
-      id="respawnRandom"
-      bind:checked={$settings.respawnRandom}
-    />
+    <label for="respawnUnstable">
+      Respawn Partciles Near Unstable and Saddle Nodes
+      <input
+        type="checkbox"
+        id="respawnUnstable"
+        bind:checked={$settings.respawnUnstable}
+      />
+    </label>
 
-    <div style="padding-bottom: 15px;">
-        <label for="drawFixedPointsBool">Draw Fixed Points</label>
-        <input
-          type="checkbox"
-          id="drawFixedPointsBool"
-          bind:checked={$settings.drawFixedPointsBool}
-        />
-    </div>
+    <label for="respawnRandom">
+      Respawn Partciles Randomly
+      <input
+        type="checkbox"
+        id="respawnRandom"
+        bind:checked={$settings.respawnRandom}
+      />
+    </label> 
 
-    <button on:click={copyUrl}>Copy URL</button>
+    <label for="drawFixedPointsBool">
+      Draw Fixed Points
+      <input
+        type="checkbox"
+        id="drawFixedPointsBool"
+        bind:checked={$settings.drawFixedPointsBool}
+      />
+    </label>
   </nav>
 {:else}
-<button on:click={() => show = true} class="menu">
-    ☰
-</button>
+  <button on:click={() => show = true} class="menu">☰</button>
 {/if}
 
 {#if showSignature}
@@ -329,8 +341,7 @@
         color:white;
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        .slider-checkbox {
+    .slider-checkbox {
         display: flex;
         align-items: center;
     }
@@ -352,7 +363,7 @@
         font-family: 'Roboto', sans-serif;
     }
 
-     nav {
+    nav {
         background-color: rgba(3, 3, 3, 0.5);
         color: rgba(231, 231, 231, 0.932);
         padding: 10px;
@@ -375,7 +386,7 @@
     color: #c1c1c1;
     text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
     margin-bottom: 20px;
-   }
+  }
 
   button:hover {
     color: #fff;

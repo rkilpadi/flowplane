@@ -7,15 +7,8 @@
     $: ({Zoom,mergeDist,testParticleCount,step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
   
     let p5Instance;
-    let particles = [];
-    let fixedPoints = [];
-    let fixedPointsTotals = [];
-    let stage = 0;
     const initialFrames = 300;
-    let framesLeft = initialFrames;
-    let numFixedPoints = 0;
-    let negateVelocity = true;
-    const stability = Object.freeze({   
+    const stability = Object.freeze({
         STABLE: Symbol("stable"),
         UNSTABLE: Symbol("unstable"),
         SADDLE: Symbol("saddle"),
@@ -58,7 +51,7 @@
             framesLeft--;
             if (framesLeft <= 0 && stage < 3) {
                 framesLeft = initialFrames;
-                stage == 2 && numFixedPoints > 1 ? numFixedPoints-- : stage++;
+                stage++;
                 newStage = true;
             }
             
@@ -77,6 +70,7 @@
                     break;
                 case 2:
                     if (newStage) particles = [];
+                    negateVelocity = false;
                     findStabilityStage(newStage);
                     break;
                 case 3:
@@ -99,10 +93,10 @@
         }
 
         function findStabilityStage() {
-            if (particles.length < perturbationCount) {
-                let fixedPoint = fixedPoints[numFixedPoints-1]
-                let offset = p5.TAU * (particles.length / perturbationCount);
-                for (let i = 0; i < perturbationCount-1;i++){
+            if (particles.length < perturbationCount * fixedPoints.length) {
+                for (let i = 0; i < fixedPoints.length; i++) {
+                    let fixedPoint = fixedPoints[i];
+                    let offset = p5.TAU * (particles.length / perturbationCount);
                     particles.push(p5.createVector(fixedPoint.x + p5.cos(offset)*perturbation, fixedPoint.y + p5.sin(offset)*perturbation));
                     offset = p5.TAU * (particles.length / perturbationCount);
                 }
@@ -110,24 +104,23 @@
                 moveParticles();
             }
 
-            if (framesLeft == 100) {
-                let point = fixedPoints[numFixedPoints-1];
-                let close = 0;
-                let far = 0;
-                for (let i = 0; i < particles.length; i++) {
-                    p5.dist(particles[i].x, particles[i].y, point.x, point.y) < perturbation ? close++ : far++;
+            if (framesLeft == Math.max(initialFrames - perturbationCount - 100, 10)) {
+                for (let i = 0; i < fixedPoints.length; i++) {
+                    let point = fixedPoints[i];
+                    let close = 0;
+                    let far = 0;
+                    for (let j = i; j < particles.length; j += fixedPoints.length) {
+                        p5.dist(particles[j].x, particles[j].y, point.x, point.y) < perturbation ? close++ : far++;
+                    }
+                    if (far == 0) {
+                        point.stability = stability.STABLE;
+                    } else if (close == 0) {
+                        point.stability = stability.UNSTABLE;
+                    } else {
+                        point.stability = stability.SADDLE;
+                    }
+                    console.log(point.stability.description, close, far);
                 }
-                if (far == 0) {
-                    point.stability = stability.STABLE;
-                    console.log('STABLE');
-                } else if (close == 0) {
-                    point.stability = stability.UNSTABLE;
-                    console.log('UNSTABLE');
-                } else {
-                    point.stability = stability.SADDLE;
-                    console.log('SADDLE');
-                }
-                console.log(close, far);
             }
         }
 
@@ -141,7 +134,6 @@
         }
 
         function resetParticles() {
-
             for (let i = 0; i < particles.length; i++) {
                 let particle = particles[i];
                 let velocity = p5.createVector(xdot(particle.x, particle.y), ydot(particle.x, particle.y));
@@ -158,23 +150,23 @@
                 let velocityTooLow = velocity.mag() < minVelocity;
 
                 if (tooFarOffScreen || tooCloseToStablePoint || velocityTooLow) {
-                let resetFunctions = [];
+                    let resetFunctions = [];
 
-                // Add functions to the array based on the boolean flags
-                if (respawnBorder) {
-                    resetFunctions.push(() => resetParticleOnBorder(particle));
-                }
-                if (respawnUnstable) {
-                    resetFunctions.push(() => resetParticleNearUnstablePoint(particle, unstableRadius));
-                }
-                if (respawnRandom) {
-                    resetFunctions.push(() => resetRandomParticle(particle));
-                }
+                    // Add functions to the array based on the boolean flags
+                    if (respawnBorder) {
+                        resetFunctions.push(() => resetParticleOnBorder(particle));
+                    }
+                    if (respawnUnstable) {
+                        resetFunctions.push(() => resetParticleNearUnstablePoint(particle, unstableRadius));
+                    }
+                    if (respawnRandom) {
+                        resetFunctions.push(() => resetRandomParticle(particle));
+                    }
 
-                if (resetFunctions.length > 0) {                
-                    let choice = Math.floor(p5.random(resetFunctions.length));
-                    resetFunctions[choice](); 
-                }
+                    if (resetFunctions.length > 0) {                
+                        let choice = Math.floor(p5.random(resetFunctions.length));
+                        resetFunctions[choice](); 
+                    }
                 }
             }
         }
@@ -298,7 +290,6 @@
                     }
                     if (!foundPoint && point.x > xMin && point.x < xMax && point.y > yMin && point.y < yMax) {
                         fixedPoints.push(point);
-                        numFixedPoints++;
                         fixedPointsTotals.push(1);
                         console.log('POINT FOUND', point);
                     }
@@ -328,17 +319,12 @@
             return evaluate($dy, { x: x, y: y });
         }
 
-        /* p5.windowResized = () => {
-            particles = [];
-            p5.canvas.remove();
-            p5.setup();
-        } */
         p5.windowResized = () => {
             p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
             xMin = -Zoom;
             xMax = Zoom;
-            yMin = -Zoom*p5.windowHeight/p5.windowWidth;
-            yMax = Zoom*p5.windowHeight/p5.windowWidth;
+            yMin = -Zoom * p5.windowHeight / p5.windowWidth;
+            yMax = Zoom * p5.windowHeight / p5.windowWidth;
         }
         }
        

@@ -2,7 +2,6 @@
 	import Sketch from './Sketch.svelte';
 	import Sidebar from './Sidebar.svelte';
     import { settings, dx, dy, unique } from '$lib/stores.js';
-    import { onMount } from 'svelte';
     import { page } from '$app/stores';
 
     Object.keys($settings).forEach(setting => {
@@ -22,6 +21,7 @@
 
 	<main>
 		<Sidebar />
+        <div class="signature"> Drew & Ryan </div>
 	</main>
 </div>
 
@@ -32,5 +32,16 @@
 		left: 0;
 		z-index: -1;
 		animation: fadein 2s;
-	}
+	}  
+
+    .signature {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        color: rgba(192, 192, 192, 0.61);
+        font-family: 'Great Vibes', cursive;
+        padding: 10px;
+        font-size: 1.5em;
+        user-select: none;
+    }
 </style>
