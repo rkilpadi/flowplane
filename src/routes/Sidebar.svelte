@@ -38,14 +38,20 @@
       console.log(url);
     }
   }
+  let showSignature = true;
+  let signatureText = 'Drew & Ryan'; // New variable for dynamic text
+
+  function toggleSignature() {
+    showSignature = !showSignature;
+    signatureText = showSignature ? 'Drew & Ryan' : 'Hide'; // Change text based on state
+  }
 </script>
 
 {#if show}
   <nav transition:fly={{x: -250, opacity: 1}}>
     <button on:click={() => show = false}>Close</button>
-    <button>Fast Forward</button>
     <button on:click={updateEquations}>Play</button>
-
+    <p>Documentation on these settings is up and coming - for now we experiment!</p>
     <label class="input-container1">ẋ
       <input
         type='text'
@@ -269,9 +275,19 @@
     ☰
 </button>
 {/if}
-<div class="signature">
-  Drew & Ryan
-</div>
+
+{#if showSignature}
+<button class="signature" 
+        on:click={toggleSignature} 
+        on:mouseover={() => signatureText = 'Hide'} 
+        on:mouseout={() => signatureText = 'Drew & Ryan'}
+        on:focus={() => signatureText = 'Hide'} 
+        on:blur={() => signatureText = 'Drew & Ryan'}>
+  <span class="signature-text">{signatureText}</span>
+</button>
+{/if}
+
+
 <style>
   @import url('https://fonts.googleapis.com/css?family=Great+Vibes');
       .signature {
@@ -280,9 +296,13 @@
         right: 0;
         color: rgba(192, 192, 192, 0.61); /* Translucent gray */
         font-family: 'Great Vibes', cursive; /* Specify the imported cursive font */
-        padding: 10px;
-        font-size: 1.5em;
+        padding: 1px;
+        margin:10px;
+        font-size: 1vw;
         user-select: none;
+        cursor: pointer; /* Change cursor to indicate clickable */
+        width:6vw;
+        
     }
     .input-container1 {
         display: flex;
@@ -328,7 +348,7 @@
         flex-grow: 1;
      }
 
-    button, input, label {
+    button, input, label, p {
         font-family: 'Roboto', sans-serif;
     }
 
@@ -381,4 +401,6 @@
     background-color:  rgba(3, 3, 3, 0.7);
     color: #dfdfdf;
   }
+
+
 </style>

@@ -2,7 +2,7 @@
     import P5 from 'p5-svelte';
     import { onDestroy } from 'svelte';
     import { settings, dx, dy } from '$lib/stores.js';
-    import { evaluate } from 'mathjs';
+    import { evaluate, random } from 'mathjs';
 
     $: ({Zoom,mergeDist,testParticleCount,step, drawFixedPointsBool, unstableRadius, particleSize, trail, perturbation, perturbationCount, particleCount, speedLimit, enforceSpeedLimit, stableRadius, minVelocity, offScreenTolerance, respawnBorder, respawnUnstable, respawnRandom } = $settings);
   
@@ -15,8 +15,7 @@
     let framesLeft = initialFrames;
     let numFixedPoints = 0;
     let negateVelocity = true;
-
-    const stability = Object.freeze({
+    const stability = Object.freeze({   
         STABLE: Symbol("stable"),
         UNSTABLE: Symbol("unstable"),
         SADDLE: Symbol("saddle"),
@@ -26,13 +25,27 @@
     const sketch = (p5) => {
 
         p5Instance = p5;
+        
         let xMin = -Zoom;
         let xMax = Zoom;
-        let yMin = -Zoom*p5.windowHeight/p5.windowWidth;
-        let yMax = Zoom*p5.windowHeight/p5.windowWidth;
+        let yMin = -Zoom;
+        let yMax = Zoom;
+        let colorArray = [p5.color(50, 200, 255), p5.color(121, 209, 204)]; // Now using p5's color function
 
+        if (p5.windowHeight > p5.windowWidth) {
+        xMin = -Zoom*p5.windowWidth/p5.windowHeight;
+        xMax = Zoom*p5.windowWidth/p5.windowHeight;
+        yMin = -Zoom;
+        yMax = Zoom;
+        } else {
+        xMin = -Zoom;
+        xMax = Zoom;
+        yMin = -Zoom*p5.windowHeight/p5.windowWidth;
+        yMax = Zoom*p5.windowHeight/p5.windowWidth;
+        }
         p5.setup = () => {
             p5.createCanvas(p5.windowWidth, p5.windowHeight);
+
         }
 
         p5.draw = () => {
@@ -48,16 +61,18 @@
                 stage == 2 && numFixedPoints > 1 ? numFixedPoints-- : stage++;
                 newStage = true;
             }
+            
 
             switch (stage) {
                 case 0:
+                    p5.stroke('red');
                     if (newStage) initializeTestParticles();
                     findFixedPointsStage();
                     break;
                 case 1:
                     if (newStage) initializeTestParticles();
                     negateVelocity = false;
-                    p5.stroke('red');
+                    p5.stroke('lightseagreen');
                     findFixedPointsStage(newStage);
                     break;
                 case 2:
@@ -77,7 +92,7 @@
                     break;
             }
         }
-
+        
         function findFixedPointsStage() {
             moveParticles();
             resetParticles();
@@ -215,25 +230,38 @@
         function initializeParticles() {
             particles = [];
             for (let i = 0; i < particleCount; i++) {
-                particles.push(p5.createVector(p5.random(xMin, xMax), p5.random(yMin, yMax)));
+                let colorPhase = random(0, 1);
+
+                particles.push(p5.createVector(p5.random(xMin, xMax), p5.random(yMin, yMax), colorPhase));
             }
         }
 
         function drawParticles() {
             p5.strokeWeight(particleSize);
             for (let i = 0; i < particles.length; i++) {
-                p5.stroke('lightseagreen');
+
+                if (typeof particles[i].z !== 'undefined'){
+                    p5.stroke(p5.lerpColor(colorArray[0], colorArray[1], particles[i].z));
+
+                }
+                else{
+                    p5.stroke('yellow')
+                }
                 let prevX = p5.map(particles[i].x, xMin, xMax, 0, p5.width);
                 let prevY = p5.map(particles[i].y, yMin, yMax, p5.height, 0);
                 p5.point(prevX, prevY);
             }
         }
 
+
+
+
         function moveParticles() {
+            let colorChangeSpeed = 0.1; // Adjust this value to change the speed of color change
+
             for (let i = 0; i < particles.length; i++) {
                 let prevX = p5.map(particles[i].x, xMin, xMax, 0, p5.width);
                 let prevY = p5.map(particles[i].y, yMin, yMax, p5.height, 0);
-
                 let x = particles[i].x;
                 let y = particles[i].y;
                 let xDelta = xdot(x, y);
@@ -275,6 +303,13 @@
                         console.log('POINT FOUND', point);
                     }
                 }
+                particles[i].z += colorChangeSpeed;
+                 if (particles[i].z > 1) {
+                        particles[i].z = 0; // Reset the color phase
+                 }
+                let colorPhase = (Math.sin(2 * Math.PI * particles[i].z) + 1) / 2; // Creates an oscillation effect
+
+                p5.stroke(p5.lerpColor(colorArray[0], colorArray[1], colorPhase));
 
                 let newX = p5.map(x, xMin, xMax, 0, p5.width);
                 let newY = p5.map(y, yMin, yMax, p5.height, 0);
@@ -282,7 +317,6 @@
                 p5.line(prevX, prevY, newX, newY);
                 particles[i].x = x;
                 particles[i].y = y;
-
             }
         }
 
@@ -294,12 +328,21 @@
             return evaluate($dy, { x: x, y: y });
         }
 
-        p5.windowResized = () => {
+        /* p5.windowResized = () => {
             particles = [];
             p5.canvas.remove();
             p5.setup();
+        } */
+        p5.windowResized = () => {
+            p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
+            xMin = -Zoom;
+            xMax = Zoom;
+            yMin = -Zoom*p5.windowHeight/p5.windowWidth;
+            yMax = Zoom*p5.windowHeight/p5.windowWidth;
         }
-    }
+        }
+       
+
 
     onDestroy(() => {
         p5Instance?.remove();
